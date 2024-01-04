@@ -1,0 +1,69 @@
+library(tidyverse)
+library(sf)
+
+# This script allocates votes from the 2022 general election into proposed legislative districts
+
+################################################################################
+# setup
+
+# crosswalk to allocate reporting units to blocks
+blocks.to.rep.units <- read_csv("election-data/blocks-to-reporting-units-allocation-factors.csv",
+                                col_types = "cccn")
+
+# block assignments to each redistricting plan
+block.assignments <- read_csv("block-assignments/all-plans.csv", 
+                              col_types = cols(.default = "c")) |>
+  pivot_longer(cols = -GEOID, names_to = "plan", values_to = "district")
+
+# the actual reporting unit election results
+election.results <- st_read("election-data/ReportingUnitPolygons.geojson") |>
+  st_drop_geometry()
+#   keep results for governor, US senator, attorney general, and state treasurer
+election.results.long <- election.results |>
+  select(CNTY_NAME, rep_unit, contains("GOV"), contains("USS"), contains("WAG"), contains("WST")) |>
+  pivot_longer(cols = c(contains("22")), names_to = "race", values_to = "votes")
+
+################################################################################
+# allocate votes
+
+votes.by.district <- block.assignments |>
+  inner_join(blocks.to.rep.units) |>
+  group_by(plan, district, CNTY_NAME, rep_unit) |>
+  summarise(prop_of_rep_unit = sum(prop_of_rep_unit), .groups = "drop") |>
+  inner_join(election.results.long, relationship = "many-to-many") |>
+  mutate(adj_votes = votes * prop_of_rep_unit) |>
+  group_by(plan, district, race) |>
+  summarise(votes = sum(adj_votes), .groups = "drop")
+
+# confirm that vote totals match
+#   each race
+inner_join(
+  votes.by.district |>
+    group_by(race, plan) |>
+    summarise(allocated_total = sum(votes)),
+  election.results.long |>
+    group_by(race) |>
+    summarise(original_total = sum(votes))
+) |>
+  mutate(match = original_total == allocated_total) |>
+  group_by(match) |>
+  summarise(count = n())
+
+# results in the actual districts
+inner_join(
+  election.results |>
+    group_by(assembly_district) |>
+    summarise(original_total = sum(GOVTOT22)),
+  votes.by.district |>
+    filter(plan == "legis_wsa",
+           race == "GOVTOT22") |>
+    mutate(district = as.numeric(district)) |>
+    select(assembly_district = district, allocated_total = votes)
+) |>
+  mutate(match = original_total == allocated_total) |>
+  group_by(match) |>
+  summarise(count = n())
+
+################################################################################
+# save output
+write_csv(votes.by.district, "election-data/votes2022-in-proposed-districts.csv")
