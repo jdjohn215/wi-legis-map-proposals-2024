@@ -16,10 +16,12 @@ pmc.senate <- read_csv("block-assignments/PMC_Senate.csv",
 # Legislature's plan (ultimately selected by SCOWIS & used in the 2022 election)
 legis.assembly <- read_delim("block-assignments/55_WI_SLDL22.txt", delim = ",",
                              col_types = "cc") |>
-  rename(legis_wsa = SLDLST)
+  rename(legis_wsa = SLDLST) |>
+  mutate(legis_wsa = if_else(legis_wsa != "ZZZ", as.character(as.numeric(legis_wsa)), legis_wsa))
 legis.senate <- read_delim("block-assignments/55_WI_SLDU22.txt", delim = ",",
                              col_types = "cc") |>
-  rename(legis_wss = SLDUST)
+  rename(legis_wss = SLDUST) |>
+  mutate(legis_wss = if_else(legis_wss != "ZZZ", as.character(as.numeric(legis_wss)), legis_wss))
 
 ############################################################################
 # combine all the plans into a single object
