@@ -10,17 +10,17 @@ block.demographics <- read_csv("census-blocks/wi-blocks-simple.csv") |>
 
 plan.district.totals <- block.demographics |>
   inner_join(block.assignments) |>
-  select(ends_with("wsa"), ends_with("wss"), starts_with("pop")) |>
-  pivot_longer(-starts_with("pop"), names_to = "plan", values_to = "district") |>
+  select(ends_with("wsa"), ends_with("wss"), pop, vap, vap_white, vap_black, vap_hisp) |>
+  pivot_longer(cols = c(contains("wsa"), contains("wss")), names_to = "plan", values_to = "district") |>
   filter(district != "ZZZ") |>
   group_by(plan, district) |>
   summarise(across(.cols = where(is.numeric), .fns = sum), .groups = "drop") |>
-  pivot_longer(cols = starts_with("pop_"), names_to = "subgroup") |>
-  group_by(plan, district) |>
-  mutate(largest_group = word(subgroup[value == max(value)], -1, sep = "_"),
-         largest_share = max(value)/unique(pop)*100) |>
-  pivot_wider(names_from = subgroup, values_from = value) |>
-  ungroup()
+  mutate(vap_majority = case_when(
+    vap_white/vap > 0.5 ~ "white",
+    vap_black/vap > 0.5 ~ "black",
+    vap_hisp/vap > 0.5 ~ "hispanic",
+    TRUE ~ "no majority"
+  ))
 
 plan.summary <- plan.district.totals |>
   group_by(plan) |>
@@ -29,6 +29,7 @@ plan.summary <- plan.district.totals |>
             range = max - min,
             pct_deviation = (range/(sum(pop)/n()))*100,
             sd = sd(pop),
-            black = sum(largest_group == "black"),
-            hispanic = sum(largest_group == "hisp"))
+            black = sum(vap_majority == "black"),
+            hispanic = sum(vap_majority == "hispanic"),
+            none = sum(vap_majority == "no majority"))
 write_csv(plan.summary, "analysis-r/tables/plan-demographics.csv")
