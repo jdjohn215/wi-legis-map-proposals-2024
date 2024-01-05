@@ -29,11 +29,10 @@ district.county.intersections <- blocks.with.mcds |>
   mutate(pct_of_district = (pop/sum(pop))*100) |>
   ungroup()
 
-# identify counties whose population is divided into multiple districts
+# identify counties divided into multiple districts
 #   that themselves straddle county lines
 split.counties <- district.county.intersections |>
-  filter(pop > 0,
-         pct_of_district < 100) |>
+  filter(pct_of_district < 100) |>
   group_by(plan, CNTY_NAME) |>
   filter(n_distinct(district) > 1) |>
   group_by(plan) |>
@@ -51,11 +50,10 @@ district.muni.intersections <- blocks.with.mcds |>
   mutate(pct_of_district = (pop/sum(pop))*100) |>
   ungroup()
 
-# identify municipalities whose population is divided into multiple districts
+# identify municipalities divided into multiple districts
 #   that themselves straddle municipal lines
 split.municipalities <- district.muni.intersections |>
-  filter(pop > 0,
-         pct_of_district < 100) |>
+  filter(pct_of_district < 100) |>
   group_by(muni_fips, plan) |>
   filter(n_distinct(district) > 1) |>
   group_by(plan) |>
