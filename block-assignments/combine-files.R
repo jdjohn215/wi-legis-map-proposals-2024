@@ -12,6 +12,16 @@ pmc.senate <- read_csv("block-assignments/PMC_Senate.csv",
                        col_types = "cc") |>
   rename(pmc_wss = district)
 
+
+############################################################################
+# Governor Evers' Least Change Plan
+evers.lc.assembly <- read_csv("block-assignments/Governor's LC State Assembly.csv",
+                         col_types = "cc") |>
+  rename(GEOID = 1, everslc_wsa = District)
+evers.lc.senate <- read_csv("block-assignments/Governor's LC State Senate.csv",
+                       col_types = "cc") |>
+  rename(GEOID = 1, everslc_wss = District)
+
 ############################################################################
 # Legislature's plan (ultimately selected by SCOWIS & used in the 2022 election)
 legis.assembly <- read_delim("block-assignments/55_WI_SLDL22.txt", delim = ",",
@@ -29,6 +39,8 @@ legis.senate <- read_delim("block-assignments/55_WI_SLDU22.txt", delim = ",",
 all.plans <- pmc.assembly |>
   left_join(pmc.senate) |>
   left_join(legis.assembly) |>
-  left_join(legis.senate)
+  left_join(legis.senate) |>
+  left_join(evers.lc.assembly) |>
+  left_join(evers.lc.senate)
 
 write_csv(all.plans, "block-assignments/all-plans.csv")

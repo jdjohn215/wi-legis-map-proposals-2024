@@ -47,6 +47,7 @@ combine <- demographics.2 |>
     plan = case_when(
       plan == "legis" ~ "GOP Legislature 2021",
       plan == "pmc" ~ "People's Map Commission 2021",
+      plan == "everslc" ~ "Evers' Least Change 2021",
       TRUE ~ plan),
     house = if_else(house == "wss", "Senate", "Assembly"))
 
@@ -89,7 +90,7 @@ assembly.gt <- combine |>
   tab_style(style = cell_text(weight = "bold", size = 16),
             locations = cells_title()) |>
   data_color(columns = total_pop_deviation, palette = "Oranges", domain = c(0,2)) |>
-  data_color(columns = c(black, hispanic, none), palette = "Oranges", domain = c(0,6)) |>
+  data_color(columns = c(black, hispanic, none), palette = "Oranges", domain = c(0,8)) |>
   tab_style(style = cell_fill(color = "red"),
             locations = cells_body(columns = 6, rows = contiguity != "Yes")) |>
   tab_style(style = cell_text(weight = "bold"),
@@ -111,6 +112,8 @@ assembly.gt <- combine |>
                locations = cells_column_labels("total_pop_deviation")) |>
   tab_footnote(footnote = "Number of districts where each group forms a majority of adults.",
                locations = cells_column_spanners("Opportunity Districts")) |>
+  tab_footnote(footnote = "Only includes adults choosing non-Hispanic Black alone",
+               local(cells_column_labels("black"))) |>
   tab_footnote(footnote = "Number of each split into multiple districts that themselves cross muni/county lines.",
                locations = cells_column_spanners("# split by districts")) |>
   tab_footnote(footnote = "The ratio of each plan's total perimeter from all districts, divided by the total perimeter from the shortest plan. A value of 1 indicates the most compact plan.",
@@ -181,6 +184,8 @@ senate.gt <- combine |>
                locations = cells_column_labels("total_pop_deviation")) |>
   tab_footnote(footnote = "Number of districts where each group forms a majority of adults.",
                locations = cells_column_spanners("Opportunity Districts")) |>
+  tab_footnote(footnote = "Only includes adults choosing non-Hispanic Black alone",
+               local(cells_column_labels("black"))) |>
   tab_footnote(footnote = "Number of each split into multiple districts that themselves cross muni/county lines.",
                locations = cells_column_spanners("# split by districts")) |>
   tab_footnote(footnote = "The ratio of each plan's total perimeter from all districts, divided by the total perimeter from the shortest plan. A value of 1 indicates the most compact plan.",
