@@ -197,7 +197,7 @@ senate.gt
 
 ################################################################################
 # save output
-gtsave(assembly.gt, "scorecards/assembly-scorecard.png")
+gtsave(assembly.gt, "scorecards/assembly-scorecard.png", vwidth = 1200)
 gtsave(assembly.gt, "scorecards/assembly-scorecard.html")
-gtsave(senate.gt, "scorecards/senate-scorecard.png")
+gtsave(senate.gt, "scorecards/senate-scorecard.png", vwidth = 1200)
 gtsave(senate.gt, "scorecards/senate-scorecard.html")
