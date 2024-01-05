@@ -9,7 +9,7 @@ block.shp <- st_read("census-blocks/WI_BLOCKS_2020_TIGER_PL94171.geojson") |>
                       col_types = cols(.default = "c"))) |>
   filter(legis_wsa != "ZZZ")
 state.boundary <- st_read("plan-polygons/Wisconsin_State_Boundary_24K.geojson") |>
-  st_transform(crs = 4326) |>
+  st_transform(crs = 4269) |>
   select(geometry)
 
 create_district_polygons <- function(plan_name){
@@ -17,7 +17,7 @@ create_district_polygons <- function(plan_name){
     group_by(!!sym(plan_name)) |>
     summarise(geometry = st_union(geometry, is_coverage = TRUE)) |>
     st_make_valid() |>
-    st_transform(crs = 4326) |>
+    st_transform(crs = 4269) |>
     # trim
     st_intersection(state.boundary) |>
     st_make_valid() |>
