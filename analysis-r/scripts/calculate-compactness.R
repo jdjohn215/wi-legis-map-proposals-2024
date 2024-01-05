@@ -103,5 +103,5 @@ all.plan.aggregate.scores <- all.plan.district.scores |>
 ################################################################################
 # save output
 write_csv(all.plan.district.scores, "analysis-r/tables/plan-seat-compactness.csv")
-write_csv(all.plan.district.scores, "analysis-r/tables/plan-aggregate-compactness.csv")
+write_csv(all.plan.aggregate.scores, "analysis-r/tables/plan-aggregate-compactness.csv")
 
