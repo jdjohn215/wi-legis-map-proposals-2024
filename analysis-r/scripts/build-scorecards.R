@@ -55,8 +55,8 @@ assembly.gt <- combine |>
   filter(house == "Assembly") |>
   select(-house) |>
   gt(rowname_col = "plan") |>
-  tab_spanner(label = "Opportunity Districts", columns = 3:5) |>
-  tab_spanner(label = "# split by districts", columns = 7:8) |>
+  tab_spanner(label = "Opportunity Districts", columns = c(black, hispanic, none)) |>
+  tab_spanner(label = "# split by districts", columns = starts_with("split")) |>
   cols_label(
     total_pop_deviation = "Pop. deviation",
     black = "Black",
@@ -65,6 +65,7 @@ assembly.gt <- combine |>
     contiguity = "Contiguous?",
     split_municipalities = "municipalities",
     split_counties = "counties",
+    split_wards = "wards",
     relative_perimeter = "Relative compactness",
     median_seat_lean = "Tipping point seat"
   ) |>
@@ -77,6 +78,7 @@ assembly.gt <- combine |>
     contiguity ~ px(110),
     split_municipalities ~ px(110),
     split_counties ~ px(90),
+    split_wards ~ px(50),
     relative_perimeter ~ px(110),
     median_seat_lean ~ px(100)
   ) |>
@@ -92,11 +94,12 @@ assembly.gt <- combine |>
   data_color(columns = total_pop_deviation, palette = "Oranges", domain = c(0,2)) |>
   data_color(columns = c(black, hispanic, none), palette = "Oranges", domain = c(0,8)) |>
   tab_style(style = cell_fill(color = "red"),
-            locations = cells_body(columns = 6, rows = contiguity != "Yes")) |>
+            locations = cells_body(columns = contiguity, rows = contiguity != "Yes")) |>
   tab_style(style = cell_text(weight = "bold"),
-            locations = cells_body(columns = 6, rows = contiguity == "Yes")) |>
+            locations = cells_body(columns = contiguity, rows = contiguity == "Yes")) |>
   data_color(columns = split_municipalities, palette = "Oranges", domain = c(0, 200)) |>
   data_color(columns = split_counties, palette = "Oranges", domain = c(0, 72)) |>
+  data_color(columns = split_wards, palette = "Oranges", domain = c(0, 300)) |>
   data_color(columns = relative_perimeter, palette = "Oranges", domain = c(1, 2)) |>
   data_color(columns = median_seat_lean, palette = "RdBu", domain = c(-17, 5)) |>
   fmt(columns = median_seat_lean,
@@ -127,8 +130,8 @@ senate.gt <- combine |>
   filter(house == "Senate") |>
   select(-house) |>
   gt(rowname_col = "plan") |>
-  tab_spanner(label = "Opportunity Districts", columns = 3:5) |>
-  tab_spanner(label = "# split by districts", columns = 7:8) |>
+  tab_spanner(label = "Opportunity Districts", columns = c(black, hispanic, none)) |>
+  tab_spanner(label = "# split by districts", columns = starts_with("split")) |>
   cols_label(
     total_pop_deviation = "Pop. deviation",
     black = "Black",
@@ -137,6 +140,7 @@ senate.gt <- combine |>
     contiguity = "Contiguous?",
     split_municipalities = "municipalities",
     split_counties = "counties",
+    split_wards = "wards",
     relative_perimeter = "Relative compactness",
     median_seat_lean = "Tipping point seat"
   ) |>
@@ -149,6 +153,7 @@ senate.gt <- combine |>
     contiguity ~ px(110),
     split_municipalities ~ px(110),
     split_counties ~ px(90),
+    split_wards ~ px(50),
     relative_perimeter ~ px(110),
     median_seat_lean ~ px(100)
   ) |>
@@ -169,6 +174,7 @@ senate.gt <- combine |>
             locations = cells_body(columns = 6, rows = contiguity == "Yes")) |>
   data_color(columns = split_municipalities, palette = "Oranges", domain = c(0, 200)) |>
   data_color(columns = split_counties, palette = "Oranges", domain = c(0, 72)) |>
+  data_color(columns = split_wards, palette = "Oranges", domain = c(0, 300)) |>
   data_color(columns = relative_perimeter, palette = "Oranges", domain = c(1, 2)) |>
   data_color(columns = median_seat_lean, palette = "RdBu", domain = c(-17, 5)) |>
   fmt(columns = median_seat_lean,

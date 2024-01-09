@@ -7,13 +7,13 @@ library(tidyverse)
 # Prepare data
 block.assignments <- read_csv("block-assignments/all-plans.csv", 
                               col_types = cols(.default = "c"))
-block.demographics <- read_csv("census-blocks/wi-blocks-simple.csv") |>
-  mutate(GEOID = as.character(GEOID))
+block.demographics <- read_csv("census-blocks/wi-blocks-simple.csv",
+                               col_types = "cccccccccnnnnnnnnnnnnnnnnnn")
 
 blocks.with.mcds <- block.assignments |>
   inner_join(block.demographics) |>
   select(GEOID, ends_with("wsa"), ends_with("wss"),
-         CNTY_NAME, muni_fips, MCD_NAME, CTV, pop) |>
+         CNTY_NAME, muni_fips, WARD_FIPS, corrected_WARD_FIPS, MCD_NAME, CTV, pop) |>
   pivot_longer(cols = c(ends_with("wsa"), ends_with("wss")),
                names_to = "plan", values_to = "district") |>
   filter(district != "ZZZ")
@@ -60,8 +60,29 @@ split.municipalities <- district.muni.intersections |>
   summarise(split_municipalities = n_distinct(muni_fips))
 
 ########################################################################
+# Find any ward/district intersections
+
+# list of blocks w/corrected wards
+#   from Joint Stipulation, "parties agree that detaching any of the 216 ward 
+#     fragments identified in Appendix A from the rest of the ward to which it 
+#     is assigned in the August 2021 Redistricting Dataset will not count as a
+#     ward split when evaluating a proposed remedial map
+blocks.appendix.a <- blocks.with.mcds |>
+  filter(WARD_FIPS != corrected_WARD_FIPS)
+
+district.wards.int <- blocks.with.mcds |>
+  # remove appendix A blocks
+  filter(! WARD_FIPS %in% blocks.appendix.a) |>
+  group_by(WARD_FIPS, plan) |>
+  summarise(districts = n_distinct(district), .groups = "drop")
+
+# identify wards divided into multiple districts
+split.wards <- district.wards.int |>
+  group_by(plan) |>
+  summarise(split_wards = sum(districts > 1))
+
+########################################################################
 # combine data
-all.splits <- full_join(split.municipalities, split.counties)
+all.splits <- full_join(split.municipalities, split.counties) |>
+  full_join(split.wards)
 write_csv(all.splits, "analysis-r/tables/plan-muni-and-county-splits.csv")
-
-

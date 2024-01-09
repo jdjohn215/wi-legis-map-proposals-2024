@@ -1,7 +1,7 @@
-plan,split_municipalities,split_counties
-everslc_wsa,175,53
-everslc_wss,118,45
-legis_wsa,51,52
-legis_wss,31,42
-pmc_wsa,130,45
-pmc_wss,74,35
+plan,split_municipalities,split_counties,split_wards
+everslc_wsa,174,53,257
+everslc_wss,118,45,178
+legis_wsa,50,52,0
+legis_wss,31,42,0
+pmc_wsa,130,45,100
+pmc_wss,74,35,47
