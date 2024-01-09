@@ -4,6 +4,11 @@ library(igraph)
 
 # This script checks the contiguity of the districts in each plan
 #   it can take many minutes to run
+#   it only runs on plans that haven't previously had their contiguity calculated
+
+################################################################################
+previously.run <- read_csv("analysis-r/tables/plan-contiguity.csv")
+
 
 ###############################################################################
 block.shp <- st_read("census-blocks/WI_BLOCKS_2020_TIGER_PL94171.geojson")
@@ -55,7 +60,7 @@ get_all_plan_districts <- function(plan, data = block.shps.with.assignments){
 }
 
 # apply the function to each plan
-all.plan.district.components <- map_df(.x = setdiff(names(block.assignments), "GEOID"),
+all.plan.district.components <- map_df(.x = setdiff(names(block.assignments), c("GEOID", unique(previously.run$plan))),
                                        .f = get_all_plan_districts,
                                        .progress = T)
 
@@ -68,5 +73,8 @@ plan.district.status |>
   group_by(plan, contiguous) |>
   summarise(districts = n()) |>
   pivot_wider(names_from = contiguous, values_from = districts)
+
+updates.plan.district.status <- previously.run |>
+  bind_rows(plan.district.status)
 
 write_csv(plan.district.status, "analysis-r/tables/plan-contiguity.csv")
