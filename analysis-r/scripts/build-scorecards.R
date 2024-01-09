@@ -28,11 +28,13 @@ compactness.2 <- compactness |>
 
 partisanship.2 <- partisanship |>
   group_by(plan) |>
+  mutate(rep = sum(modelled_outcome < 0),
+         dem = sum(modelled_outcome > 0)) |>
   arrange(modelled_outcome) |>
   filter((word(plan, -1, sep = "_") == "wsa" & row_number() == 50) |
            (word(plan, -1, sep = "_") == "wss" & row_number() == 17)) |>
   ungroup() |>
-  select(plan, median_seat_lean = modelled_outcome)
+  select(plan, rep, dem, median_seat_lean = modelled_outcome)
 
 ################################################################################
 # create table
@@ -57,6 +59,7 @@ assembly.gt <- combine |>
   gt(rowname_col = "plan") |>
   tab_spanner(label = "Opportunity Districts", columns = c(black, hispanic, none)) |>
   tab_spanner(label = "# split by districts", columns = starts_with("split")) |>
+  tab_spanner(label = "2022 outcome", columns = c(dem, rep)) |>
   cols_label(
     total_pop_deviation = "Pop. deviation",
     black = "Black",
@@ -67,6 +70,8 @@ assembly.gt <- combine |>
     split_counties = "counties",
     split_wards = "wards",
     relative_perimeter = "Relative compactness",
+    dem = "Dem.",
+    rep = "Rep.",
     median_seat_lean = "Tipping point seat"
   ) |>
   cols_width(
@@ -80,6 +85,8 @@ assembly.gt <- combine |>
     split_counties ~ px(90),
     split_wards ~ px(50),
     relative_perimeter ~ px(110),
+    dem ~ px(60),
+    rep ~ px(60),
     median_seat_lean ~ px(100)
   ) |>
   fmt_percent(columns = total_pop_deviation, decimals = 2, scale_values = F) |>
@@ -101,6 +108,8 @@ assembly.gt <- combine |>
   data_color(columns = split_counties, palette = "Oranges", domain = c(0, 72)) |>
   data_color(columns = split_wards, palette = "Oranges", domain = c(0, 300)) |>
   data_color(columns = relative_perimeter, palette = "Oranges", domain = c(1, 2)) |>
+  data_color(columns = dem, palette = "Blues", domain = c(35, 65)) |>
+  data_color(columns = rep, palette = "Reds", domain = c(35, 65)) |>
   data_color(columns = median_seat_lean, palette = "RdBu", domain = c(-17, 5)) |>
   fmt(columns = median_seat_lean,
       rows = median_seat_lean < 0,
@@ -132,6 +141,7 @@ senate.gt <- combine |>
   gt(rowname_col = "plan") |>
   tab_spanner(label = "Opportunity Districts", columns = c(black, hispanic, none)) |>
   tab_spanner(label = "# split by districts", columns = starts_with("split")) |>
+  tab_spanner(label = "2022 outcome", columns = c(dem, rep)) |>
   cols_label(
     total_pop_deviation = "Pop. deviation",
     black = "Black",
@@ -142,6 +152,8 @@ senate.gt <- combine |>
     split_counties = "counties",
     split_wards = "wards",
     relative_perimeter = "Relative compactness",
+    dem = "Dem.",
+    rep = "Rep.",
     median_seat_lean = "Tipping point seat"
   ) |>
   cols_width(
@@ -155,6 +167,8 @@ senate.gt <- combine |>
     split_counties ~ px(90),
     split_wards ~ px(50),
     relative_perimeter ~ px(110),
+    dem ~ px(60),
+    rep ~ px(60),
     median_seat_lean ~ px(100)
   ) |>
   fmt_percent(columns = total_pop_deviation, decimals = 2, scale_values = F) |>
@@ -176,6 +190,8 @@ senate.gt <- combine |>
   data_color(columns = split_counties, palette = "Oranges", domain = c(0, 72)) |>
   data_color(columns = split_wards, palette = "Oranges", domain = c(0, 300)) |>
   data_color(columns = relative_perimeter, palette = "Oranges", domain = c(1, 2)) |>
+  data_color(columns = dem, palette = "Blues", domain = c(10, 24)) |>
+  data_color(columns = rep, palette = "Reds", domain = c(10, 24)) |>
   data_color(columns = median_seat_lean, palette = "RdBu", domain = c(-17, 5)) |>
   fmt(columns = median_seat_lean,
       rows = median_seat_lean < 0,
