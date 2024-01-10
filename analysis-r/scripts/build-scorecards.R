@@ -98,7 +98,7 @@ assembly.gt <- combine |>
             locations = cells_stubhead()) |>
   tab_style(style = cell_text(weight = "bold", size = 16),
             locations = cells_title()) |>
-  data_color(columns = total_pop_deviation, palette = "Oranges", domain = c(0,2)) |>
+  data_color(columns = total_pop_deviation, palette = "Oranges", domain = c(0,5)) |>
   data_color(columns = c(black, hispanic, none), palette = "Oranges", domain = c(0,8)) |>
   tab_style(style = cell_fill(color = "red"),
             locations = cells_body(columns = contiguity, rows = contiguity != "Yes")) |>
@@ -110,7 +110,10 @@ assembly.gt <- combine |>
   data_color(columns = relative_perimeter, palette = "Oranges", domain = c(1, 2)) |>
   data_color(columns = dem, palette = "Blues", domain = c(35, 65)) |>
   data_color(columns = rep, palette = "Reds", domain = c(35, 65)) |>
-  data_color(columns = median_seat_lean, palette = "RdBu", domain = c(-17, 5)) |>
+  data_color(columns = median_seat_lean, palette = "Reds", domain = c(-17, 0),
+             rows = median_seat_lean < 0) |>
+  # data_color(columns = median_seat_lean, palette = "Blues", domain = c(0, 17),
+  #            rows = median_seat_lean > 0) |>
   fmt(columns = median_seat_lean,
       rows = median_seat_lean < 0,
       fns = function(x){paste0("+", round(abs(x), 1), " Rep")}) |>
@@ -192,7 +195,10 @@ senate.gt <- combine |>
   data_color(columns = relative_perimeter, palette = "Oranges", domain = c(1, 2)) |>
   data_color(columns = dem, palette = "Blues", domain = c(10, 24)) |>
   data_color(columns = rep, palette = "Reds", domain = c(10, 24)) |>
-  data_color(columns = median_seat_lean, palette = "RdBu", domain = c(-17, 5)) |>
+  # data_color(columns = median_seat_lean, palette = "Blues", domain = c(0, 17),
+  #            rows = median_seat_lean > 0) |>
+  data_color(columns = median_seat_lean, palette = "Reds", domain = c(-17, 0),
+             rows = median_seat_lean < 0) |>
   fmt(columns = median_seat_lean,
       rows = median_seat_lean < 0,
       fns = function(x){paste0("+", round(abs(x), 1), " Rep")}) |>
@@ -223,3 +229,15 @@ gtsave(assembly.gt, "scorecards/assembly-scorecard.png", vwidth = 1350)
 gtsave(assembly.gt, "scorecards/assembly-scorecard.html")
 gtsave(senate.gt, "scorecards/senate-scorecard.png", vwidth = 1350)
 gtsave(senate.gt, "scorecards/senate-scorecard.html")
+
+
+################################################################################
+# compactness scores
+compactness |>
+  select(-total_perimeter) |>
+  pivot_longer(cols = -c(house, plan)) |>
+  mutate(plan = word(plan, 1, sep = "_")) |>
+  pivot_wider(names_from = c(house, plan), values_from = value) |>
+  gt(rowname_col = "name") |>
+  tab_spanner_delim("_") |>
+  fmt_number(columns = where(is.numeric), decimals = 2)
