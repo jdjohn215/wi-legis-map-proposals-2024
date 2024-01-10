@@ -24,7 +24,7 @@ contiguity.2 <- contiguity |>
 splits.2 <- splits
 
 compactness.2 <- compactness |>
-  select(plan, relative_perimeter)
+  select(plan, reock)
 
 partisanship.2 <- partisanship |>
   group_by(plan) |>
@@ -69,7 +69,7 @@ assembly.gt <- combine |>
     split_municipalities = "municipalities",
     split_counties = "counties",
     split_wards = "wards",
-    relative_perimeter = "Relative compactness",
+    reock = "Avg. compactness",
     dem = "Dem.",
     rep = "Rep.",
     median_seat_lean = "Tipping point seat"
@@ -84,13 +84,13 @@ assembly.gt <- combine |>
     split_municipalities ~ px(110),
     split_counties ~ px(90),
     split_wards ~ px(50),
-    relative_perimeter ~ px(110),
+    reock ~ px(110),
     dem ~ px(60),
     rep ~ px(60),
     median_seat_lean ~ px(100)
   ) |>
   fmt_percent(columns = total_pop_deviation, decimals = 2, scale_values = F) |>
-  fmt_number(columns = relative_perimeter, decimals = 2) |>
+  fmt_number(columns = reock, decimals = 2) |>
   tab_header("Wisconsin Assembly Redistricting Plan Scorecard",
              subtitle = md(("using criteria outlined by the Wisconsin Supreme Court in *Rebecca Clarke v. Wisconsin Elections Commission*"))) |>
   tab_stubhead("plan submitted by") |>
@@ -107,7 +107,7 @@ assembly.gt <- combine |>
   data_color(columns = split_municipalities, palette = "Oranges", domain = c(0, 200)) |>
   data_color(columns = split_counties, palette = "Oranges", domain = c(0, 72)) |>
   data_color(columns = split_wards, palette = "Oranges", domain = c(0, 300)) |>
-  data_color(columns = relative_perimeter, palette = "Oranges", domain = c(1, 2)) |>
+  data_color(columns = reock, palette = "Oranges", domain = c(0, 1)) |>
   data_color(columns = dem, palette = "Blues", domain = c(35, 65)) |>
   data_color(columns = rep, palette = "Reds", domain = c(35, 65)) |>
   data_color(columns = median_seat_lean, palette = "Reds", domain = c(-17, 0),
@@ -131,8 +131,8 @@ assembly.gt <- combine |>
                local(cells_column_labels("black"))) |>
   tab_footnote(footnote = "Number of each split into multiple districts that themselves cross muni/county lines.",
                locations = cells_column_spanners("# split by districts")) |>
-  tab_footnote(footnote = "The ratio of each plan's total perimeter from all districts, divided by the total perimeter from the shortest plan. A value of 1 indicates the most compact plan.",
-               locations = cells_column_labels("relative_perimeter")) |>
+  tab_footnote(footnote = "Average Reock score for the plan. A district's Reock score is ratio of the district's area to the area of the smallest circle that can be drawn around the district.",
+               locations = cells_column_labels("reock")) |>
   tab_footnote(footnote = "The modelled lean of the 50th seat in the 2022 Assembly elections, modelled using results from statewide races.",
                locations = cells_column_labels("median_seat_lean")) |>
   tab_source_note(md("Analysis by John D. Johnson, Marquette Law School Lubar Center Research Fellow. See [github.com/jdjohn215/wi-legis-map-proposals-2024](https://github.com/jdjohn215/wi-legis-map-proposals-2024/tree/main) for all methodological details, data, and code."))
@@ -154,7 +154,7 @@ senate.gt <- combine |>
     split_municipalities = "municipalities",
     split_counties = "counties",
     split_wards = "wards",
-    relative_perimeter = "Relative compactness",
+    reock = "Avg. compactness",
     dem = "Dem.",
     rep = "Rep.",
     median_seat_lean = "Tipping point seat"
@@ -169,13 +169,13 @@ senate.gt <- combine |>
     split_municipalities ~ px(110),
     split_counties ~ px(90),
     split_wards ~ px(50),
-    relative_perimeter ~ px(110),
+    reock ~ px(110),
     dem ~ px(60),
     rep ~ px(60),
     median_seat_lean ~ px(100)
   ) |>
   fmt_percent(columns = total_pop_deviation, decimals = 2, scale_values = F) |>
-  fmt_number(columns = relative_perimeter, decimals = 2) |>
+  fmt_number(columns = reock, decimals = 2) |>
   tab_header("Wisconsin State Senate Redistricting Plan Scorecard",
              subtitle = md(("using criteria outlined by the Wisconsin Supreme Court in *Rebecca Clarke v. Wisconsin Elections Commission*"))) |>
   tab_stubhead("plan submitted by") |>
@@ -192,7 +192,7 @@ senate.gt <- combine |>
   data_color(columns = split_municipalities, palette = "Oranges", domain = c(0, 200)) |>
   data_color(columns = split_counties, palette = "Oranges", domain = c(0, 72)) |>
   data_color(columns = split_wards, palette = "Oranges", domain = c(0, 300)) |>
-  data_color(columns = relative_perimeter, palette = "Oranges", domain = c(1, 2)) |>
+  data_color(columns = reock, palette = "Oranges", domain = c(0, 1)) |>
   data_color(columns = dem, palette = "Blues", domain = c(10, 24)) |>
   data_color(columns = rep, palette = "Reds", domain = c(10, 24)) |>
   # data_color(columns = median_seat_lean, palette = "Blues", domain = c(0, 17),
@@ -216,8 +216,8 @@ senate.gt <- combine |>
                local(cells_column_labels("black"))) |>
   tab_footnote(footnote = "Number of each split into multiple districts that themselves cross muni/county lines.",
                locations = cells_column_spanners("# split by districts")) |>
-  tab_footnote(footnote = "The ratio of each plan's total perimeter from all districts, divided by the total perimeter from the shortest plan. A value of 1 indicates the most compact plan.",
-               locations = cells_column_labels("relative_perimeter")) |>
+  tab_footnote(footnote = "Average Reock score for the plan. A district's Reock score is ratio of the district's area to the area of the smallest circle that can be drawn around the district.",
+               locations = cells_column_labels("reock")) |>
   tab_footnote(footnote = "The modelled lean of the 17th seat in the 2022 State Senate elections, modelled using results from statewide races.",
                locations = cells_column_labels("median_seat_lean")) |>
   tab_source_note(md("Analysis by John D. Johnson, Marquette Law School Lubar Center Research Fellow. See [github.com/jdjohn215/wi-legis-map-proposals-2024](https://github.com/jdjohn215/wi-legis-map-proposals-2024/tree/main) for all methodological details, data, and code."))

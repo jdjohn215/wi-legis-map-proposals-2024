@@ -74,7 +74,8 @@ plan.district.status |>
   summarise(districts = n()) |>
   pivot_wider(names_from = contiguous, values_from = districts)
 
-updates.plan.district.status <- previously.run |>
+updated.plan.district.status <- previously.run |>
+  mutate(dist_number = as.character(dist_number)) |>
   bind_rows(plan.district.status)
 
-write_csv(plan.district.status, "analysis-r/tables/plan-contiguity.csv")
+write_csv(updated.plan.district.status, "analysis-r/tables/plan-contiguity.csv")

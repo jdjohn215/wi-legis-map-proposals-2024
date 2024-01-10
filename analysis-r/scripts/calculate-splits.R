@@ -1,7 +1,7 @@
-library(tidyverse)
+rm(list = ls())
 
-# This script calculates the number of counties and municipalities split into
-#   multiple legislative districts
+library(tidyverse)
+library(leaflet)
 
 ########################################################################
 # Prepare data
@@ -19,49 +19,60 @@ blocks.with.mcds <- block.assignments |>
   filter(district != "ZZZ")
 
 ########################################################################
-# Find county/district intersections
+# county splits
 district.county.intersections <- blocks.with.mcds |>
   group_by(CNTY_NAME, plan, district) |>
-  summarise(pop = sum(pop)) |>
-  group_by(CNTY_NAME, plan) |>
-  mutate(pct_of_cnty = (pop/sum(pop))*100) |>
-  group_by(plan, district) |>
-  mutate(pct_of_district = (pop/sum(pop))*100) |>
-  ungroup()
+  summarise(blocks = n(),
+            pop = sum(pop), .groups = "drop")
 
-# identify counties divided into multiple districts
-#   that themselves straddle county lines
+# identify municipalities divided into multiple districts
+#   that themselves straddle municipal lines
 split.counties <- district.county.intersections |>
-  filter(pct_of_district < 100) |>
+  # number of counties which this district at least partially overlaps with
+  group_by(plan, district) |>
+  mutate(counties_in_district = n_distinct(CNTY_NAME)) |>
+  ungroup() |>
+  # remove districts that fall entirely within a single county
+  filter(counties_in_district > 1) |>
+  # number of districts which this county at least partially overlaps with
   group_by(plan, CNTY_NAME) |>
-  filter(n_distinct(district) > 1) |>
+  mutate(districts_in_county = n_distinct(district)) |>
+  ungroup() |>
+  filter(districts_in_county > 1)
+
+split.counties.count <- split.counties |>
   group_by(plan) |>
   summarise(split_counties = n_distinct(CNTY_NAME))
 
 ########################################################################
-# Find municipality/district intersections
+# municipality splits
 district.muni.intersections <- blocks.with.mcds |>
   filter(muni_fips != "00000") |>
   group_by(muni_fips, plan, district) |>
-  summarise(pop = sum(pop)) |>
-  group_by(muni_fips, plan) |>
-  mutate(pct_of_muni = (pop/sum(pop))*100) |>
-  group_by(plan, district) |>
-  mutate(pct_of_district = (pop/sum(pop))*100) |>
-  ungroup()
+  summarise(blocks = n(),
+            pop = sum(pop), .groups = "drop")
 
 # identify municipalities divided into multiple districts
 #   that themselves straddle municipal lines
 split.municipalities <- district.muni.intersections |>
-  filter(pct_of_district < 100) |>
-  group_by(muni_fips, plan) |>
-  filter(n_distinct(district) > 1) |>
+  # number of municipalities which this district at least partially overlaps with
+  group_by(plan, district) |>
+  mutate(munis_in_district = n_distinct(muni_fips)) |>
+  ungroup() |>
+  # remove districts that fall entirely within a single municipality
+  filter(munis_in_district > 1) |>
+  # number of districts which this municipality at least partially overlaps with
+  group_by(plan, muni_fips) |>
+  mutate(districts_in_muni = n_distinct(district)) |>
+  ungroup() |>
+  filter(districts_in_muni > 1)
+
+split.municipalities.count <- split.municipalities |>
   group_by(plan) |>
   summarise(split_municipalities = n_distinct(muni_fips))
 
 ########################################################################
-# Find any ward/district intersections
-
+# ward splits
 # list of blocks w/corrected wards
 #   from Joint Stipulation, "parties agree that detaching any of the 216 ward 
 #     fragments identified in Appendix A from the rest of the ward to which it 
@@ -77,12 +88,12 @@ district.wards.int <- blocks.with.mcds |>
   summarise(districts = n_distinct(district), .groups = "drop")
 
 # identify wards divided into multiple districts
-split.wards <- district.wards.int |>
+split.wards.count <- district.wards.int |>
   group_by(plan) |>
   summarise(split_wards = sum(districts > 1))
 
 ########################################################################
 # combine data
-all.splits <- full_join(split.municipalities, split.counties) |>
-  full_join(split.wards)
+all.splits <- full_join(split.municipalities.count, split.counties.count) |>
+  full_join(split.wards.count)
 write_csv(all.splits, "analysis-r/tables/plan-muni-and-county-splits.csv")
