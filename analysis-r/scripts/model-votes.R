@@ -88,12 +88,14 @@ compare.residuals |>
 
 ################################################################################
 # predict results
-votes.by.district <- read_csv("election-data/votes2022-in-proposed-districts.csv") |>
+votes.by.district <- read_csv("election-data/votes-in-proposed-districts_2012-22.csv") |>
   separate(col = race, into = c("office","party","year"), sep = c(3,-2)) |>
   pivot_wider(names_from = party, values_from = votes) |>
   mutate(margin = (DEM/TOT - REP/TOT)*100)
 
-predicted <- votes.by.district |>
+votes.by.district.22 <- votes.by.district |> filter(year == "22")
+
+predicted <- votes.by.district.22 |>
   select(plan, district, office, margin) |>
   pivot_wider(names_from = office, values_from = margin) %>%
   mutate(predict_v1 = predict.lm(lm.margin.v1, newdata = .[]),
@@ -106,7 +108,20 @@ predicted |>
   summarise(dem_seats = sum(predict_v2 > 0))
 
 ################################################################################
-# save outpute
-final.output <- predicted |>
-  select(plan, district, modelled_outcome = predict_v2, GOV, USS, WAG, WST)
+# save output
+final.output <- inner_join(
+  # 2022 results
+  predicted |>
+    select(plan, district, modelled_outcome_22 = predict_v2, GOV_22 = GOV, 
+           USS_22 = USS, WAG_22 = WAG, WST_22 = WST),
+  # 2012-2020
+  votes.by.district |>
+    filter(year < 22) |>
+    select(plan, district, year, office, margin) |>
+    pivot_wider(names_from = c(office, year), values_from = margin)
+) |>
+  select(plan, district, modelled_outcome_22, ends_with("22"),
+         ends_with("20"), ends_with("18"), ends_with("16"), ends_with("14"),
+         ends_with("12"))
+
 write_csv(final.output, "analysis-r/tables/plan-vote-margins.csv")

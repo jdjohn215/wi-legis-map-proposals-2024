@@ -28,13 +28,13 @@ compactness.2 <- compactness |>
 
 partisanship.2 <- partisanship |>
   group_by(plan) |>
-  mutate(rep = sum(modelled_outcome < 0),
-         dem = sum(modelled_outcome > 0)) |>
-  arrange(modelled_outcome) |>
+  mutate(rep = sum(modelled_outcome_22 < 0),
+         dem = sum(modelled_outcome_22 > 0)) |>
+  arrange(modelled_outcome_22) |>
   filter((word(plan, -1, sep = "_") == "wsa" & row_number() == 50) |
            (word(plan, -1, sep = "_") == "wss" & row_number() == 17)) |>
   ungroup() |>
-  select(plan, rep, dem, median_seat_lean = modelled_outcome)
+  select(plan, rep, dem, median_seat_lean = modelled_outcome_22)
 
 ################################################################################
 # create table
