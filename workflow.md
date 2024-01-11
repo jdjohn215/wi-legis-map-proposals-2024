@@ -9,6 +9,7 @@
     * The file `census-blocks/simplify-census-block-data.R` combines the corrections and standardizes column names, the output being `census-blocks/wi-blocks-simple.csv`.
 * The basis of the election result statistics is a unique 2022 reporting unit GIS file, which I previously constructed as detailed in [this repository](https://github.com/jdjohn215/wi-nov-2022).
     * I intersect verified Nov. 2022 voter coordinates from the L2 Wisconsin voter file with both reporting units and census blocks. I use these intersected voters to create allocation factors between each census block and reporting unit. The output of this process is `election-data/blocks-to-reporting-units-allocation-factors.csv`.
+    * I also allocate the disaggregated 2012-2020 election results in 2020 wards LTSB file into the new districts using a similar process. I assign each census block to a ward. Then I calculate the proportion of the ward belonging to the block using 2020 VAP. I use these allocation factors to assign 2020 LTSB ward data into new districts.
 
 
 ##  Processing data
