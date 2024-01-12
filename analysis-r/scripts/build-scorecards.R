@@ -57,7 +57,7 @@ assembly.gt <- combine |>
   filter(house == "Assembly") |>
   select(-house) |>
   gt(rowname_col = "plan") |>
-  tab_spanner(label = "Opportunity Districts", columns = c(black, hispanic, none)) |>
+  tab_spanner(label = "Majority Minority Districts", columns = c(black, hispanic, none)) |>
   tab_spanner(label = "# split by districts", columns = starts_with("split")) |>
   tab_spanner(label = "2022 outcome", columns = c(dem, rep)) |>
   cols_label(
@@ -126,7 +126,7 @@ assembly.gt <- combine |>
   tab_footnote(footnote = "Population deviation is the range between the most populous and least population districts, divided by the ideal district size.",
                locations = cells_column_labels("total_pop_deviation")) |>
   tab_footnote(footnote = "Number of districts where each group forms a majority of adults.",
-               locations = cells_column_spanners("Opportunity Districts")) |>
+               locations = cells_column_spanners("Majority Minority Districts")) |>
   tab_footnote(footnote = "Only includes adults choosing non-Hispanic Black alone",
                local(cells_column_labels("black"))) |>
   tab_footnote(footnote = "Number of each split into multiple districts that themselves cross muni/county lines.",
@@ -142,7 +142,7 @@ senate.gt <- combine |>
   filter(house == "Senate") |>
   select(-house) |>
   gt(rowname_col = "plan") |>
-  tab_spanner(label = "Opportunity Districts", columns = c(black, hispanic, none)) |>
+  tab_spanner(label = "Majority Minority Districts", columns = c(black, hispanic, none)) |>
   tab_spanner(label = "# split by districts", columns = starts_with("split")) |>
   tab_spanner(label = "2022 outcome", columns = c(dem, rep)) |>
   cols_label(
@@ -211,7 +211,7 @@ senate.gt <- combine |>
   tab_footnote(footnote = "Population deviation is the range between the most populous and least population districts, divided by the ideal district size.",
                locations = cells_column_labels("total_pop_deviation")) |>
   tab_footnote(footnote = "Number of districts where each group forms a majority of adults.",
-               locations = cells_column_spanners("Opportunity Districts")) |>
+               locations = cells_column_spanners("Majority Minority Districts")) |>
   tab_footnote(footnote = "Only includes adults choosing non-Hispanic Black alone",
                local(cells_column_labels("black"))) |>
   tab_footnote(footnote = "Number of each split into multiple districts that themselves cross muni/county lines.",
