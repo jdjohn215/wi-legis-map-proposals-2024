@@ -1,0 +1,84 @@
+---
+title: "Noncontiguous Districts in the Wisconsin Senate Democrats Proposed Remedial Plan"
+author: "John Johnson"
+format:
+  html:
+    embed-resources: true
+editor: visual
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(leaflet)
+library(sf)
+
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+
+sendems.blocks <- st_read(here::here("census-blocks/SenateDemocrats_DiscontinguousDistricts_Assembly.geojson"))
+
+leaflet_district <- function(district, data){
+  dist.data <- data |>
+    filter(dist_number == district) |>
+    st_transform(crs = 4326)
+  leaflet(data = dist.data |> filter(component == 1)) |>
+    addProviderTiles(providers$CartoDB.Positron) |>
+    addPolygons(label = ~GEOID, popup = ~GEOID) |>
+    addPolygons(data = dist.data |> filter(component > 1),
+                label = ~paste(GEOID, pop, sep = ","), 
+                popup = ~paste(GEOID, pop, sep = ","),
+                fillColor = "red", color = "red")
+}
+```
+
+The proposed remedial Wisconsin Assembly map submitted by State Senate Democrats includes seven districts with noncontiguous sections. They are the `r knitr::combine_words(scales::ordinal(sort(unique(as.numeric(sendems.blocks$dist_number)))))` districts.
+
+For this analysis I am using the block assignment file downloaded from the Dave's Redistricting [version](https://davesredistricting.org/maps#viewmap::baeb2b07-6744-4119-b47b-4f9bae7401d4) of the map [shared by](https://twitter.com/senhesselbein/status/1745930215153377390?t=ve7t7fxJbXeaxBfxdFMVyw) Senate Minority Leader Dianne Hesselbein on January 12th, 2024.
+
+Two of the noncontiguous districts contain disconnected census blocks that were populated in the 2020 census. They are census block 550250008001000 in the 48th district (pop. 88) and census block 550350008021018 in the 92nd district (pop. 14). The remaining disconnected census blocks are all unpopulated.
+
+The following maps show the unconnected components of each district in red. Click on a census block to see its number and population in the 2020 census.
+
+I present the maps this way for ease of visualization, but the same disconnected census blocks may be viewed in the DRA map shared by Sen. Hesselbein (and linked above).
+
+# AD 44
+
+```{r}
+leaflet_district("44", sendems.blocks)
+```
+
+# AD 45
+
+```{r}
+leaflet_district("45", sendems.blocks)
+```
+
+# AD 47
+
+```{r}
+leaflet_district("47", sendems.blocks)
+```
+
+# AD 48
+
+```{r}
+leaflet_district("48", sendems.blocks)
+```
+
+# AD 91
+
+```{r}
+leaflet_district("91", sendems.blocks)
+```
+
+# AD 92
+
+```{r}
+leaflet_district("92", sendems.blocks)
+```
+
+# AD 98
+
+```{r}
+leaflet_district("98", sendems.blocks)
+```
+
