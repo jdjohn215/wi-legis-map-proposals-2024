@@ -14,6 +14,11 @@ demographics.2 <- demographics |>
   select(plan, total_pop_deviation = pct_deviation, black, hispanic, none)
 
 contiguity.2 <- contiguity |>
+  # Change legis24_wsa == 41 to contiguous because some islands are separated by water
+  #   instead of leaving the water block (550471004003059) unassigned,
+  #   this plan assigns it to district 42. However, a literal island still counts
+  #   as contiguous, per SCOWIS ruling
+  filter(! (plan == "legis24_wsa" & dist_number == 41 & components > 1)) |>
   group_by(plan) |>
   summarise(noncontiguous_districts = sum(contiguous == "noncontiguous")) |>
   mutate(contiguity = if_else(noncontiguous_districts == 0,
@@ -46,17 +51,27 @@ combine <- demographics.2 |>
   inner_join(partisanship.2) |>
   separate(plan, into = c("plan", "house"), sep = "_") |>
   mutate(
+    era = if_else(plan %in% c("legis","pmc","everslc"), "old submissions (2022)", "new submissions (2024)"),
     plan = case_when(
       plan == "legis" ~ "GOP Legislature 2021",
       plan == "pmc" ~ "People's Map Commission 2021",
       plan == "everslc" ~ "Evers' Least Change 2021",
+      plan == "legis24" ~ "Legislative Republicans",
+      plan == "evers24" ~ "Evers 2024",
+      plan == "wright" ~ "Wright Petitioners",
+      plan == "sendems" ~ "Senate Democrats",
+      plan == "petering" ~ "Petering (FastMap)",
+      plan == "will" ~ "W.I.L.L.",
+      plan == "lawforward" ~ "Law Forward",
       TRUE ~ plan),
     house = if_else(house == "wss", "Senate", "Assembly"))
 
 assembly.gt <- combine |>
   filter(house == "Assembly") |>
   select(-house) |>
+  group_by(era) |>
   gt(rowname_col = "plan") |>
+  row_group_order(c("new submissions (2024)", "old submissions (2022)")) |>
   tab_spanner(label = "Majority Minority Districts", columns = c(black, hispanic, none)) |>
   tab_spanner(label = "# split by districts", columns = starts_with("split")) |>
   tab_spanner(label = "2022 outcome", columns = c(dem, rep)) |>
@@ -96,6 +111,8 @@ assembly.gt <- combine |>
   tab_stubhead("plan submitted by") |>
   tab_style(style = cell_text(style = "italic"),
             locations = cells_stubhead()) |>
+  tab_style(style = cell_text(font = "italic", weight = "bold"),
+            locations = cells_row_groups()) |>
   tab_style(style = cell_text(weight = "bold", size = 16),
             locations = cells_title()) |>
   data_color(columns = total_pop_deviation, palette = "Oranges", domain = c(0,5)) |>
@@ -104,14 +121,14 @@ assembly.gt <- combine |>
             locations = cells_body(columns = contiguity, rows = contiguity != "Yes")) |>
   tab_style(style = cell_text(weight = "bold"),
             locations = cells_body(columns = contiguity, rows = contiguity == "Yes")) |>
-  data_color(columns = split_municipalities, palette = "Oranges", domain = c(0, 200)) |>
+  data_color(columns = split_municipalities, palette = "Oranges", domain = c(0, 260)) |>
   data_color(columns = split_counties, palette = "Oranges", domain = c(0, 72)) |>
-  data_color(columns = split_wards, palette = "Oranges", domain = c(0, 300)) |>
-  data_color(columns = reock, palette = "Oranges", domain = c(0, 1)) |>
+  data_color(columns = split_wards, palette = "Oranges", domain = c(0, 260)) |>
+  data_color(columns = reock, palette = "Oranges", domain = c(0.3, 0.45)) |>
   data_color(columns = dem, palette = "Blues", domain = c(35, 65)) |>
-  data_color(columns = rep, palette = "Reds", domain = c(35, 65)) |>
+  data_color(columns = rep, palette = "Reds", domain = c(35, 65), reverse = T) |>
   data_color(columns = median_seat_lean, palette = "Reds", domain = c(-17, 0),
-             rows = median_seat_lean < 0) |>
+             rows = median_seat_lean < 0, reverse = T) |>
   # data_color(columns = median_seat_lean, palette = "Blues", domain = c(0, 17),
   #            rows = median_seat_lean > 0) |>
   fmt(columns = median_seat_lean,
@@ -133,6 +150,8 @@ assembly.gt <- combine |>
                locations = cells_column_spanners("# split by districts")) |>
   tab_footnote(footnote = "Average Reock score for the plan. A district's Reock score is ratio of the district's area to the area of the smallest circle that can be drawn around the district.",
                locations = cells_column_labels("reock")) |>
+  tab_footnote(footnote = "The modelled outcome of the 2022 legislative election in this district, modelled using results from statewide races.",
+               locations = cells_column_spanners("2022 outcome")) |>
   tab_footnote(footnote = "The modelled lean of the 50th seat in the 2022 Assembly elections, modelled using results from statewide races.",
                locations = cells_column_labels("median_seat_lean")) |>
   tab_source_note(md("Analysis by John D. Johnson, Marquette Law School Lubar Center Research Fellow. See [github.com/jdjohn215/wi-legis-map-proposals-2024](https://github.com/jdjohn215/wi-legis-map-proposals-2024/tree/main) for all methodological details, data, and code."))
@@ -141,7 +160,9 @@ assembly.gt
 senate.gt <- combine |>
   filter(house == "Senate") |>
   select(-house) |>
+  group_by(era) |>
   gt(rowname_col = "plan") |>
+  row_group_order(c("new submissions (2024)", "old submissions (2022)")) |>
   tab_spanner(label = "Majority Minority Districts", columns = c(black, hispanic, none)) |>
   tab_spanner(label = "# split by districts", columns = starts_with("split")) |>
   tab_spanner(label = "2022 outcome", columns = c(dem, rep)) |>
@@ -181,6 +202,8 @@ senate.gt <- combine |>
   tab_stubhead("plan submitted by") |>
   tab_style(style = cell_text(style = "italic"),
             locations = cells_stubhead()) |>
+  tab_style(style = cell_text(font = "italic", weight = "bold"),
+            locations = cells_row_groups()) |>
   tab_style(style = cell_text(weight = "bold", size = 16),
             locations = cells_title()) |>
   data_color(columns = total_pop_deviation, palette = "Oranges", domain = c(0,2)) |>
@@ -189,16 +212,16 @@ senate.gt <- combine |>
             locations = cells_body(columns = 6, rows = contiguity != "Yes")) |>
   tab_style(style = cell_text(weight = "bold"),
             locations = cells_body(columns = 6, rows = contiguity == "Yes")) |>
-  data_color(columns = split_municipalities, palette = "Oranges", domain = c(0, 200)) |>
+  data_color(columns = split_municipalities, palette = "Oranges", domain = c(0, 260)) |>
   data_color(columns = split_counties, palette = "Oranges", domain = c(0, 72)) |>
-  data_color(columns = split_wards, palette = "Oranges", domain = c(0, 300)) |>
-  data_color(columns = reock, palette = "Oranges", domain = c(0, 1)) |>
+  data_color(columns = split_wards, palette = "Oranges", domain = c(0, 260)) |>
+  data_color(columns = reock, palette = "Oranges", domain = c(0.3, 0.4)) |>
   data_color(columns = dem, palette = "Blues", domain = c(10, 24)) |>
-  data_color(columns = rep, palette = "Reds", domain = c(10, 24)) |>
-  # data_color(columns = median_seat_lean, palette = "Blues", domain = c(0, 17),
-  #            rows = median_seat_lean > 0) |>
+  data_color(columns = rep, palette = "Reds", domain = c(10, 24), reverse = T) |>
+  data_color(columns = median_seat_lean, palette = "Blues", domain = c(0, 17),
+             rows = median_seat_lean > 0) |>
   data_color(columns = median_seat_lean, palette = "Reds", domain = c(-17, 0),
-             rows = median_seat_lean < 0) |>
+             rows = median_seat_lean < 0, reverse = T) |>
   fmt(columns = median_seat_lean,
       rows = median_seat_lean < 0,
       fns = function(x){paste0("+", round(abs(x), 1), " Rep")}) |>
@@ -218,6 +241,8 @@ senate.gt <- combine |>
                locations = cells_column_spanners("# split by districts")) |>
   tab_footnote(footnote = "Average Reock score for the plan. A district's Reock score is ratio of the district's area to the area of the smallest circle that can be drawn around the district.",
                locations = cells_column_labels("reock")) |>
+  tab_footnote(footnote = "The modelled outcome of the 2022 legislative election in this district, modelled using results from statewide races.",
+               locations = cells_column_spanners("2022 outcome")) |>
   tab_footnote(footnote = "The modelled lean of the 17th seat in the 2022 State Senate elections, modelled using results from statewide races.",
                locations = cells_column_labels("median_seat_lean")) |>
   tab_source_note(md("Analysis by John D. Johnson, Marquette Law School Lubar Center Research Fellow. See [github.com/jdjohn215/wi-legis-map-proposals-2024](https://github.com/jdjohn215/wi-legis-map-proposals-2024/tree/main) for all methodological details, data, and code."))

@@ -14,6 +14,7 @@ state.boundary <- st_read("plan-polygons/Wisconsin_State_Boundary_24K.geojson") 
 
 create_district_polygons <- function(plan_name){
   plan.polygons <- block.shp |>
+    filter(!!sym(plan_name) != "ZZZ") |>
     group_by(!!sym(plan_name)) |>
     summarise(geometry = st_union(geometry, is_coverage = TRUE)) |>
     st_make_valid() |>
