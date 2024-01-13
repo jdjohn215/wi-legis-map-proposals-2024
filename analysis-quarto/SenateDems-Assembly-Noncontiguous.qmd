@@ -81,4 +81,3 @@ leaflet_district("92", sendems.blocks)
 ```{r}
 leaflet_district("98", sendems.blocks)
 ```
-

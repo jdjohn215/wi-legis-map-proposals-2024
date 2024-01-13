@@ -107,6 +107,39 @@ sendems.blocks.w.components.2 |>
   st_write("census-blocks/SenateDemocrats_DiscontinguousDistricts_Assembly.geojson")
 
 ##############################################################################
+# Senate Democrats Senate
+sendems.blocks <- block.assignments |>
+  select(GEOID, dist_number = sendems_wss) |>
+  filter(dist_number %in% discontiguous.districts$dist_number[discontiguous.districts$plan == "sendems_wss"]) |>
+  inner_join(block.shp) |>
+  st_as_sf() |>
+  inner_join(block.demographics)
+
+sendems.block.components <- map_df(unique(sendems.blocks$dist_number),
+                                   get_district_components,
+                                   data = sendems.blocks, .progress = T)
+
+sendems.blocks.w.components <- inner_join(sendems.blocks, sendems.block.components)
+component.pops <- sendems.blocks.w.components |>
+  st_drop_geometry() |>
+  group_by(dist_number, component) |>
+  summarise(component_pop = sum(pop), .groups = "drop") |>
+  arrange(dist_number, desc(component_pop)) |>
+  group_by(dist_number) |>
+  mutate(component_reorder = row_number()) |>
+  ungroup()
+
+sendems.blocks.w.components.2 <- inner_join(sendems.blocks.w.components, component.pops) |>
+  mutate(component = component_reorder)
+
+sendems.blocks.w.components.2 |> filter(component > 1, pop > 0)
+
+sort(unique(sendems.block.components$dist_number))
+
+leaflet_district("16", sendems.blocks.w.components.2)
+leaflet_district("33", sendems.blocks.w.components.2)
+
+##############################################################################
 # Legislative Republicans Assembly
 # This demonstrates that legis24_wsa == 41 is ACTUALLY contiguous
 #   some islands are separated by water AND
