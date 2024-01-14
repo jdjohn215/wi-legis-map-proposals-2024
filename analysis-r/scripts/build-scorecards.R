@@ -158,7 +158,7 @@ assembly.gt <- combine |>
   tab_footnote(footnote = "The modelled lean of the 50th seat in the 2022 Assembly elections, modelled using results from statewide races.",
                locations = cells_column_labels("median_seat_lean")) |>
   tab_footnote(footnote = "The Senate Democrats plan includes 7 districts with disconnected portions, according to the US Census Bureau Census Block GIS file. However, the parties agreed in a joint stipulation dated 1/2/2024 to nonetheless count these as contiguous.",
-               locations = cells_column_labels("contiguity")) |>
+               locations = cells_body(columns = "contiguity", rows = plan == "Senate Democrats")) |>
   tab_source_note(md("Analysis by John D. Johnson, Marquette Law School Lubar Center Research Fellow. See [github.com/jdjohn215/wi-legis-map-proposals-2024](https://github.com/jdjohn215/wi-legis-map-proposals-2024/tree/main) for all methodological details, data, and code."))
 assembly.gt
 
@@ -251,7 +251,7 @@ senate.gt <- combine |>
   tab_footnote(footnote = "The modelled lean of the 17th seat in the 2022 State Senate elections, modelled using results from statewide races.",
                locations = cells_column_labels("median_seat_lean")) |>
   tab_footnote(footnote = "The Senate Democrats plan includes 2 districts with disconnected portions, according to the US Census Bureau Census Block GIS file. However, the parties agreed in a joint stipulation dated 1/2/2024 to nonetheless count these as contiguous.",
-               locations = cells_column_labels("contiguity")) |>
+               locations = cells_body(columns = "contiguity", rows = plan == "Senate Democrats")) |>
   tab_source_note(md("Analysis by John D. Johnson, Marquette Law School Lubar Center Research Fellow. See [github.com/jdjohn215/wi-legis-map-proposals-2024](https://github.com/jdjohn215/wi-legis-map-proposals-2024/tree/main) for all methodological details, data, and code."))
 senate.gt
 
