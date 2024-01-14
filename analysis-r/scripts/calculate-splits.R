@@ -83,7 +83,7 @@ blocks.appendix.a <- blocks.with.mcds |>
 
 district.wards.int <- blocks.with.mcds |>
   # remove appendix A blocks
-  filter(! WARD_FIPS %in% blocks.appendix.a) |>
+  filter(! WARD_FIPS %in% blocks.appendix.a$WARD_FIPS) |>
   group_by(WARD_FIPS, plan) |>
   summarise(districts = n_distinct(district), .groups = "drop")
 
