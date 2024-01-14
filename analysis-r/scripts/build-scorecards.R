@@ -24,7 +24,10 @@ contiguity.2 <- contiguity |>
   mutate(contiguity = if_else(noncontiguous_districts == 0,
                               "Yes",
                               paste0("No (", noncontiguous_districts, " splits)"))) |>
-  select(plan, contiguity)
+  select(plan, contiguity) |>
+  # Joint Stipulation states that the discontiguous census blocks in the
+  #   Senate Democrats plan shouldn't be counted as discontiguous
+  mutate(contiguity = if_else(str_detect(plan, "sendems"), "Yes", contiguity))
 
 splits.2 <- splits
 
@@ -154,6 +157,8 @@ assembly.gt <- combine |>
                locations = cells_column_spanners("2022 outcome")) |>
   tab_footnote(footnote = "The modelled lean of the 50th seat in the 2022 Assembly elections, modelled using results from statewide races.",
                locations = cells_column_labels("median_seat_lean")) |>
+  tab_footnote(footnote = "The Senate Democrats plan includes 7 districts with disconnected portions, according to the US Census Bureau Census Block GIS file. However, the parties agreed in a joint stipulation dated 1/2/2024 to nonetheless count these as contiguous.",
+               locations = cells_column_labels("contiguity")) |>
   tab_source_note(md("Analysis by John D. Johnson, Marquette Law School Lubar Center Research Fellow. See [github.com/jdjohn215/wi-legis-map-proposals-2024](https://github.com/jdjohn215/wi-legis-map-proposals-2024/tree/main) for all methodological details, data, and code."))
 assembly.gt
 
@@ -245,6 +250,8 @@ senate.gt <- combine |>
                locations = cells_column_spanners("2022 outcome")) |>
   tab_footnote(footnote = "The modelled lean of the 17th seat in the 2022 State Senate elections, modelled using results from statewide races.",
                locations = cells_column_labels("median_seat_lean")) |>
+  tab_footnote(footnote = "The Senate Democrats plan includes 2 districts with disconnected portions, according to the US Census Bureau Census Block GIS file. However, the parties agreed in a joint stipulation dated 1/2/2024 to nonetheless count these as contiguous.",
+               locations = cells_column_labels("contiguity")) |>
   tab_source_note(md("Analysis by John D. Johnson, Marquette Law School Lubar Center Research Fellow. See [github.com/jdjohn215/wi-legis-map-proposals-2024](https://github.com/jdjohn215/wi-legis-map-proposals-2024/tree/main) for all methodological details, data, and code."))
 senate.gt
 
