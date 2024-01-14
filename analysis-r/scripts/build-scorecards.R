@@ -101,7 +101,7 @@ assembly.gt <- combine |>
     contiguity ~ px(110),
     split_municipalities ~ px(110),
     split_counties ~ px(90),
-    split_wards ~ px(50),
+    split_wards ~ px(60),
     reock ~ px(110),
     dem ~ px(60),
     rep ~ px(60),
@@ -159,6 +159,8 @@ assembly.gt <- combine |>
                locations = cells_column_labels("median_seat_lean")) |>
   tab_footnote(footnote = "The Senate Democrats plan includes 7 districts with disconnected portions, according to the US Census Bureau Census Block GIS file. However, the parties agreed in a joint stipulation dated 1/2/2024 to nonetheless count these as contiguous.",
                locations = cells_body(columns = "contiguity", rows = plan == "Senate Democrats")) |>
+  tab_footnote(footnote = "This does not include any ward splits which the parties agreed not to count as such in a joint stipulation dated 1/2/2024.",
+               locations = cells_column_labels(columns = "split_wards")) |>
   tab_source_note(md("Analysis by John D. Johnson, Marquette Law School Lubar Center Research Fellow. See [github.com/jdjohn215/wi-legis-map-proposals-2024](https://github.com/jdjohn215/wi-legis-map-proposals-2024/tree/main) for all methodological details, data, and code."))
 assembly.gt
 
@@ -194,7 +196,7 @@ senate.gt <- combine |>
     contiguity ~ px(110),
     split_municipalities ~ px(110),
     split_counties ~ px(90),
-    split_wards ~ px(50),
+    split_wards ~ px(60),
     reock ~ px(110),
     dem ~ px(60),
     rep ~ px(60),
@@ -248,10 +250,12 @@ senate.gt <- combine |>
                locations = cells_column_labels("reock")) |>
   tab_footnote(footnote = "The modelled outcome of the 2022 legislative election in this district, modelled using results from statewide races.",
                locations = cells_column_spanners("2022 outcome")) |>
-  tab_footnote(footnote = "The modelled lean of the 17th seat in the 2022 State Senate elections, modelled using results from statewide races.",
+  tab_footnote(footnote = "The modelled lean of the 17th seat in the 2022 State Senate elections (had all seats been contested), modelled using results from statewide races. In reality, only even or odd-numbered seats are up for reelection at a time.",
                locations = cells_column_labels("median_seat_lean")) |>
   tab_footnote(footnote = "The Senate Democrats plan includes 2 districts with disconnected portions, according to the US Census Bureau Census Block GIS file. However, the parties agreed in a joint stipulation dated 1/2/2024 to nonetheless count these as contiguous.",
                locations = cells_body(columns = "contiguity", rows = plan == "Senate Democrats")) |>
+  tab_footnote(footnote = "This does not include any ward splits which the parties agreed not to count as such in a joint stipulation dated 1/2/2024.",
+               locations = cells_column_labels(columns = "split_wards")) |>
   tab_source_note(md("Analysis by John D. Johnson, Marquette Law School Lubar Center Research Fellow. See [github.com/jdjohn215/wi-legis-map-proposals-2024](https://github.com/jdjohn215/wi-legis-map-proposals-2024/tree/main) for all methodological details, data, and code."))
 senate.gt
 
