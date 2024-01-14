@@ -24,24 +24,15 @@ all.plan.polygons <- map_df(plan.paths, read_plan_polygons) |>
 # Reock Score
 #   ratio of district area to the area of the minimum bounding circle
 
-get_bounding_radius <- function(index){
-  district <- all.plan.polygons[index,]
-  centroid <- district$centroid
-  vertices <- st_cast(district, "POINT", warn = F)
-  
-  district |>
-    st_drop_geometry() |>
-    select(plan, district, perimeter, area) |>
-    mutate(bounding_radius = max(st_distance(vertices, centroid)),
-           bounding_circle_area = pi * bounding_radius^2)
-}
+all.plan.polygons.w.bounding.circle <- all.plan.polygons |>
+  mutate(min_bound_circle = lwgeom::st_minimum_bounding_circle(geometry))
 
-bounding.circle.area <- map_df(1:nrow(all.plan.polygons), get_bounding_radius,
-                               .progress = TRUE)
-
-reock <- bounding.circle.area |>
-  mutate(reock = as.numeric(area/bounding_circle_area)) |>
+reock <- all.plan.polygons.w.bounding.circle |>
+  mutate(bounding_circle_area = st_area(min_bound_circle),
+         reock = as.numeric(area/bounding_circle_area)) |>
+  st_drop_geometry() |>
   select(plan, district, reock)
+
 
 ################################################################################
 # Polsby-Popper
