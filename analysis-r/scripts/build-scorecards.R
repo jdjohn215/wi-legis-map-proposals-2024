@@ -161,6 +161,10 @@ assembly.gt <- combine |>
                locations = cells_body(columns = "contiguity", rows = plan == "Senate Democrats")) |>
   tab_footnote(footnote = "This does not include any ward splits which the parties agreed not to count as such in a joint stipulation dated 1/2/2024.",
                locations = cells_column_labels(columns = "split_wards")) |>
+  tab_footnote(footnote = "On January 17, the Court ruled that the would not consider the Petering submission, as Petering was not among the original petitioners in the case.",
+               locations = cells_stub(plan == "Petering (FastMap)")) |>
+  tab_footnote(footnote = "The final wards were drawn to match the boundaries of this plan.",
+               locations = cells_body(columns = split_wards, rows = plan == "GOP Legislature 2021")) |>
   tab_source_note(md("Analysis by John D. Johnson, Marquette Law School Lubar Center Research Fellow. See [github.com/jdjohn215/wi-legis-map-proposals-2024](https://github.com/jdjohn215/wi-legis-map-proposals-2024/tree/main) for all methodological details, data, and code."))
 assembly.gt
 
@@ -256,6 +260,8 @@ senate.gt <- combine |>
                locations = cells_body(columns = "contiguity", rows = plan == "Senate Democrats")) |>
   tab_footnote(footnote = "This does not include any ward splits which the parties agreed not to count as such in a joint stipulation dated 1/2/2024.",
                locations = cells_column_labels(columns = "split_wards")) |>
+  tab_footnote(footnote = "The final wards were drawn to match the boundaries of this plan.",
+               locations = cells_body(columns = split_wards, rows = plan == "GOP Legislature 2021")) |>
   tab_source_note(md("Analysis by John D. Johnson, Marquette Law School Lubar Center Research Fellow. See [github.com/jdjohn215/wi-legis-map-proposals-2024](https://github.com/jdjohn215/wi-legis-map-proposals-2024/tree/main) for all methodological details, data, and code."))
 senate.gt
 
