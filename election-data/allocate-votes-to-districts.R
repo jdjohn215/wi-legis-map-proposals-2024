@@ -114,6 +114,6 @@ inner_join(
 votes.by.district.all <- votes.by.district |>
   bind_rows(ltsb.votes.by.district) |>
   filter(str_sub(race, 4, -3) %in% c("DEM", "REP", "TOT"),
-         str_sub(race, 1, 3) %in% c("GOV", "USS", "WAG", "WST"))
+         str_sub(race, 1, 3) %in% c("GOV", "USS", "WAG", "WST", "PRE"))
 
 write_csv(votes.by.district.all, "election-data/votes-in-proposed-districts_2012-22.csv")
