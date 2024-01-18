@@ -258,6 +258,8 @@ senate.gt <- combine |>
                locations = cells_column_labels("median_seat_lean")) |>
   tab_footnote(footnote = "The Senate Democrats plan includes 2 districts with disconnected portions, according to the US Census Bureau Census Block GIS file. However, the parties agreed in a joint stipulation dated 1/2/2024 to nonetheless count these as contiguous.",
                locations = cells_body(columns = "contiguity", rows = plan == "Senate Democrats")) |>
+  tab_footnote(footnote = "On January 17, the Court ruled that the would not consider the Petering submission, as Petering was not among the original petitioners in the case.",
+               locations = cells_stub(plan == "Petering (FastMap)")) |>
   tab_footnote(footnote = "This does not include any ward splits which the parties agreed not to count as such in a joint stipulation dated 1/2/2024.",
                locations = cells_column_labels(columns = "split_wards")) |>
   tab_footnote(footnote = "The final wards were drawn to match the boundaries of this plan.",
