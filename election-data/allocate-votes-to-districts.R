@@ -66,48 +66,15 @@ inner_join(
 
 ################################################################################
 # setup LTSB 2012-2020 votes
-# crosswalk between census blocks and LTSB wards 2020
-#   only for blocks with VAP
-blocks.to.wards <- read_csv("election-data/blocks-to-wards2020-allocation-factors.csv",
-                            col_types = "ccn")
+# LTSB results disaggregated to blocks
+#   See election-data/2012-2020/disaggregate-ltsb-to-2020-blocks.R for details
+blocks.disaggregated.votes <- read_csv("election-data/2012-2020/ltsb-disaggregated-to-2020-blocks_2012-20.csv.gz",
+                                       col_types = "ccn")
 
-# orig LTSB
-ltsb.2020 <- read_csv("election-data/2012-2020_Election_Data_with_2020_Wards.csv")
-
-# reformat
-ltsb.2020.long <- ltsb.2020 |>
-  select(-c(1,3:34)) |>
-  rename(ward_GEOID = GEOID) |>
-  pivot_longer(cols = -ward_GEOID, values_to = "votes", names_to = "race")
-
-# block assignments to each redistricting plan
-block.assignments <- read_csv("block-assignments/all-plans.csv", 
-                              col_types = cols(.default = "c")) |>
-  pivot_longer(cols = -GEOID, names_to = "plan", values_to = "district")
-
-ltsb.votes.by.district <- block.assignments |>
-  inner_join(blocks.to.wards, by = c("GEOID" = "block_GEOID")) |>
-  group_by(plan, district, ward_GEOID) |>
-  summarise(prop_of_ward = sum(prop_of_ward), .groups = "drop") |>
-  inner_join(ltsb.2020.long, relationship = "many-to-many") |>
-  mutate(adj_votes = votes * prop_of_ward) |>
-  group_by(plan, district, race) |>
-  summarise(votes = sum(adj_votes, na.rm = T), .groups = "drop")
-
-# confirm that vote totals match
-#   each race
-inner_join(
-  ltsb.votes.by.district |>
-    group_by(race, plan) |>
-    summarise(allocated_total = sum(votes)),
-  ltsb.2020.long |>
-    group_by(race) |>
-    summarise(original_total = sum(votes, na.rm = T))
-) |>
-  mutate(match = round(original_total) == round(allocated_total)) |>
-  group_by(match) |>
-  summarise(count = n())
-
+ltsb.votes.by.district <- blocks.disaggregated.votes |>
+  left_join(block.assignments, by = c("block_2020" = "GEOID"), relationship = "many-to-many") |>
+  group_by(plan, district, race = name) |>
+  summarise(votes = sum(disaggregated_votes))
 
 ################################################################################
 # combine and save output
