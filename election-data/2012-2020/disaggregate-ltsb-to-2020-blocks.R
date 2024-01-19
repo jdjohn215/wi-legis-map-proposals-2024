@@ -308,7 +308,9 @@ all.disaggregated.votes |>
 # just keep Dem, Rep, and Total votes for Gov, AG, Treasurer, Senator, and President
 all.disaggregated.votes |>
   filter(str_sub(name, 1, 3) %in% c("GOV","WAG","WST","USS", "PRE"),
-         str_sub(name, 4, -3) %in% c("DEM", "REP", "TOT")) |>
+         str_sub(name, 4, -3) %in% c("DEM", "REP", "TOT"),
+         #  remove race that has incorrect names. There was no AG race in 2012
+         str_detect(name, "WAGTOT12|WAGDEM12|WAGREP12", negate = T)) |>
   write_csv("election-data/2012-2020/ltsb-disaggregated-to-2020-blocks_2012-20.csv.gz")
 
 # Demonstration of how 2014 totals are incorrect in the 2011, 2014, and 2017 files
