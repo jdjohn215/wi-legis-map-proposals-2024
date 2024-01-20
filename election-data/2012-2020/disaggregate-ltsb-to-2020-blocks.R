@@ -77,7 +77,15 @@ wards.2018.to.blocks.v2 <- wards.2018.to.blocks |>
 # LTSB disaggregated election returns in 2017 wards (because I can't find a 2016 file)
 ltsb.2017 <- st_read("election-data/2012-2020/WI_20122020_Election_Data_Wards_2017/WI_20122020_Election Data_Wards_2017.shp")
 
-wards.2017 <- ltsb.2017 |>
+# munge weird ward that gets assigned to water block
+ltsb.2017.v2 <- ltsb.2017 |>
+  mutate(GEOID = if_else(GEOID == "55139508500013", "55139508250014", GEOID)) |>
+  st_make_valid() |>
+  group_by(GEOID) |>
+  summarise(across(.cols = ends_with("16"), .fns = sum),
+            geometry = st_union(geometry))
+
+wards.2017 <- ltsb.2017.v2 |>
   select(ward_2017 = GEOID) |>
   st_transform(crs = st_crs(block.shp)) |>
   st_make_valid()
@@ -87,7 +95,7 @@ wards.2017.to.blocks <- st_join(block.centroids, wards.2017) |>
 
 
 # wards that failed to be assigned any blocks
-ward.join.2017.v2 <- ltsb.2017 |> 
+ward.join.2017.v2 <- ltsb.2017.v2 |> 
   rename(ward_2017 = GEOID) |>
   filter(! ward_2017 %in% wards.2017.to.blocks$ward_2017) |>
   select(ward_2017, PRETOT16) |>
@@ -100,7 +108,8 @@ ward.join.2017.v2 <- ltsb.2017 |>
 wards.2017.to.blocks.v2 <- wards.2017.to.blocks |>
   filter(! block_2020 %in% ward.join.2017.v2$block_2020) |>
   bind_rows(ward.join.2017.v2) |>
-  select(ward_2017, block_2020)
+  select(ward_2017, block_2020) |>
+  filter(block_2020 != "551390028001029")
 
 ###############################################################################
 # 2014
@@ -211,7 +220,7 @@ sum(wards.to.blocks.2018$disaggregated_votes[wards.to.blocks.2018$name == "GOVTO
 sum(wards.to.blocks.2018$disaggregated_votes[wards.to.blocks.2018$name == "GOVTOT14"], na.rm = T) == sum(ltsb.2018$GOVTOT14, na.rm = T)
 
 # 2016 (using 2017 wards)
-wards.to.blocks.2016 <- ltsb.2017 |>
+wards.to.blocks.2016 <- ltsb.2017.v2 |>
   select(ward_2017 = GEOID, ends_with("16")) |>
   st_drop_geometry() |>
   pivot_longer(cols = -ward_2017, values_to = "votes") |>
