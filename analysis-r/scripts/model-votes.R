@@ -1,6 +1,7 @@
 rm(list = ls())
 
 library(tidyverse)
+library(sf)
 
 # This script models state legislative election outcomes in hypothetical districts
 
@@ -122,6 +123,7 @@ final.output <- inner_join(
 ) |>
   select(plan, district, modelled_outcome_22, ends_with("22"),
          ends_with("20"), ends_with("18"), ends_with("16"), ends_with("14"),
-         ends_with("12"))
+         ends_with("12")) |>
+  filter(district != "ZZZ")
 
 write_csv(final.output, "analysis-r/tables/plan-vote-margins.csv")
