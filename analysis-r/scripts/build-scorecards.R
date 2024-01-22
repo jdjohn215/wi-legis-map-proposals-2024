@@ -35,6 +35,7 @@ compactness.2 <- compactness |>
   select(plan, reock)
 
 partisanship.2 <- partisanship |>
+  filter(district != "ZZZ") |>
   group_by(plan) |>
   mutate(rep = sum(modelled_outcome_22 < 0),
          dem = sum(modelled_outcome_22 > 0)) |>
