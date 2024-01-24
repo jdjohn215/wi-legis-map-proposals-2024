@@ -81,7 +81,7 @@ senate.gt <- margins.summary |>
   tab_source_note("All calculations by John D. Johnson (@jdjmke). See github.com/jdjohn215/wi-legis-map-proposals-2024 for full data and methodological details.") |>
   tab_options(table.width = 700)
 # save output
-gtsave(assembly.gt, "scorecards/assembly-margins-scorecard.png", vwidth = 700)
+gtsave(assembly.gt, "scorecards/assembly-margins-scorecard.png", vwidth = 900)
 gtsave(assembly.gt, "scorecards/assembly-margins-scorecard.html")
-gtsave(senate.gt, "scorecards/senate-margins-scorecard.png", vwidth = 700)
+gtsave(senate.gt, "scorecards/senate-margins-scorecard.png", vwidth = 900)
 gtsave(senate.gt, "scorecards/senate-margins-scorecard.html")
